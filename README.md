@@ -18,7 +18,7 @@ Four waveform features are extracted for all unit pairs:
 - Amplitude similarity (peak-to-peak amplitude difference, max-normalised)
 - Width similarity (peak-to-peak width difference)
 
-An SVM classifier is trained on within-session pairs (ground-truth matches) and across-session pairs (ground-truth non-matches) to learn the decision boundary. It is then applied to all cross-session unit pairs on each electrode, yielding P(match) for every pair.
+An SVM classifier is trained on same unit pairs (ground-truth matches, across session splits) and different unit pairs (ground-truth non-matches, recorded on different channels) to learn the decision hyperplane. It is then applied to all cross-session unit pairs on each electrode, yielding the posterior probability P(match) for every pair.
 
 **Step 3 — Unit tracking** (`trackUnits`)
 Units are linked across sessions by greedy merging of the highest-confidence pairs, subject to the constraint that no identity may contain two units from the same recording day. Each group of linked units is assigned a unique integer identifier.
