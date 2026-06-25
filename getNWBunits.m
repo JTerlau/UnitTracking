@@ -1,6 +1,6 @@
 
 
-%% extract necessary unit information from nwbFiles (e.g. all nwb files of one session)
+%% extract necessary unit information from nwbFiles (all nwb files of one session)
 
 % INPUT
     % nwbFiles is a cell array, where each cell contains an nwb file
@@ -87,7 +87,6 @@ for iFile = 1:numel(nwbFiles)
     recDay = str2double(datestr(datenum(nwb.identifier, 'dd-mmm-yyyy HH:MM:SS'), 'yyyymmdd'));
     recDay = repmat(recDay,numel(unitID),1);
 
-
     % put in table
     nwbTbl{iFile} = table(unitID,elecID,recDay,wf,spikeTimes,...
         'VariableNames',{'unitID','elecID','recDay','waveform','spikeTimes'});
@@ -110,6 +109,10 @@ wf_cat         = splitapply(@(x) {int16(vertcat(x{:}))}, T.waveform, unitG);
 spikeTimes_cat = splitapply(@(x) {vertcat(x{:})}, T.spikeTimes, unitG);
 elecID_cat     = splitapply(@(x) {unique(x)}, T.elecID, unitG);
 recDay_cat     = repelem(T.recDay(1,:),max(unitG),1);
+
+if (numel(unique(T.recDay))>1)
+    error('nwb files seem to have different recording dates')
+end
 
 % excise gaps in spikeTimes
 if any(cell2mat(cellfun(@(x) any(diff(x)<0),spikeTimes_cat,'un',0)))

@@ -1,11 +1,11 @@
 
 % train classifier using labeled waveform features
 
-function [mdl, CV, normTrain] = trainClassifier(sessionSplits)
+function [mdl, normTrain, CV] = trainClassifier(sessionSplits)
 
 
-Xw = jt_getSimFeatures(sessionSplits,'within');
-Xa = jt_getSimFeatures(sessionSplits,'across');
+Xw = getSimFeatures(sessionSplits,'within');
+Xa = getSimFeatures(sessionSplits,'across');
 
 
 %% min max normalization
@@ -19,33 +19,37 @@ X = [Xw_norm;Xa_norm];
 
 Y = categorical([ones(size(Xw,1),1);2*ones(size(Xa,1),1)]);
 
-% 1. Cross-validation
-k = 10;
-cv = cvpartition(Y,'KFold',k);
+% 1. Cross-validation (optional)
+if nargout > 2
 
-CV.true  = double(Y);
-CV.pred  = zeros(size(Y));
-CV.prob  = zeros(size(Y));
+    k = 10;
+    cv = cvpartition(Y,'KFold',k);
 
-for k = 1:k
-    trainIdx = training(cv,k);
-    testIdx  = test(cv,k);
+    CV.true  = double(Y);
+    CV.pred  = zeros(size(Y));
+    CV.prob  = zeros(size(Y));
 
-    % Train SVM
-    mdlOrig = fitcsvm(X(trainIdx,:), Y(trainIdx), ...
-                  'Standardize',true);
+    for iFold = 1:k
+        trainIdx = training(cv,iFold);
+        testIdx  = test(cv,iFold);
 
-    % training
-    mdlOrig = fitPosterior(mdlOrig, X(trainIdx,:), Y(trainIdx));
+        % Train SVM
+        mdlOrig = fitcsvm(X(trainIdx,:), Y(trainIdx), ...
+            'Standardize',true);
 
-    % testing
-    [lbl, p] = predict(mdlOrig, X(testIdx,:));
+        % training
+        mdlOrig = fitPosterior(mdlOrig, X(trainIdx,:), Y(trainIdx));
 
-    CV.pred(testIdx) = lbl;
-    CV.prob(testIdx) = p(:,1); % P(Match)
+        % testing
+        [lbl, p] = predict(mdlOrig, X(testIdx,:));
+
+        CV.pred(testIdx) = lbl;
+        CV.prob(testIdx) = p(:,1); % P(Match)
+    end
+
+    CV.acc = mean(CV.pred == CV.true);
+    
 end
-
-CV.acc = mean(CV.pred == CV.true);
 
 % 2. Final model
 mdlOrig = fitcsvm(X,Y);

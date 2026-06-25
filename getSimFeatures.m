@@ -17,10 +17,9 @@ for iSession = 1:numel(sessionSplits)
         slope_sim = cell2mat(cellfun(@(x) corr(diff(x(1,:))',diff(x(2,:))'),sessionSplit.waveform,'un',0));
     
         %% peak to peak height & time difference
-        t_thresh  = 41;
-        [p1,minT] = cellfun(@(x) min(x,[],2),sessionSplit.waveform,'un',0); 
-        [p2,maxT] = cellfun(@(x) max(x(:,t_thresh:end),[],2),sessionSplit.waveform,'un',0); 
-        maxT      = cellfun(@(x) x+t_thresh,maxT,'un',0);
+        [p1,minT] = cellfun(@(x) min(x,[],2),sessionSplit.waveform,'un',0);
+        [p2,maxT] = cellfun(@(x,y) max(x(:,y:end),[],2),sessionSplit.waveform,minT,'un',0);
+        maxT      = cellfun(@(x,y) x+y,maxT,minT,'un',0);
            
         ptpA      = abs(cell2mat(p2')-cell2mat(p1'));
         ptpA_diff = 1-abs((ptpA(1,:)-ptpA(2,:))./max(ptpA))';
@@ -30,7 +29,7 @@ for iSession = 1:numel(sessionSplits)
 
     elseif strcmp(simType,'across')
 
-        rng()
+        rng('default')
 
         wf_avg = cell2mat(cellfun(@mean,sessionSplit.waveform,'un',0));
       
@@ -69,12 +68,11 @@ for iSession = 1:numel(sessionSplits)
         end
         slope_sim = cell2mat(slope_sim(:));
 
-        %% peak to peak height & time difference       
-        t_thresh  = 41;
-        [p1,minT] = cellfun(@(x) min(mean(x),[],2),sessionSplit.waveform,'un',0); 
-        [p2,maxT] = cellfun(@(x) max(mean(x(:,t_thresh:end)),[],2),sessionSplit.waveform,'un',0); 
-        maxT      = cellfun(@(x) x+t_thresh,maxT,'un',0);
-    
+        %% peak to peak height & time difference      
+        [p1,minT] = cellfun(@(x) min(mean(x),[],2),sessionSplit.waveform,'un',0);
+        [p2,maxT] = cellfun(@(x,y) max(mean(x(:,y:end)),[],2),sessionSplit.waveform,minT,'un',0);
+        maxT      = cellfun(@(x,y) x+y,maxT,minT,'un',0);
+           
         ptpA = abs(cell2mat(p2) - cell2mat(p1));
         ptpW = abs(cell2mat(maxT) - cell2mat(minT));
 

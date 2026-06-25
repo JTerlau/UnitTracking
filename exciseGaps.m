@@ -11,8 +11,7 @@ for iUnit = 1:numel(spikeTimes)
 
     % Detect starts of new segments (where time decreases)
     newStartIdx = find(diff(spikes_in) < 0)+1;
-
-    offset = 0;
+   
     for i = 1:length(newStartIdx)
         idx = newStartIdx(i):length(spikes_in);
         % set to 0

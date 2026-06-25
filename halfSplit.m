@@ -44,10 +44,10 @@ wf_splitIdx   = cellfun(@(x) dsearchn(x,midpoint),session.spikeTimes,'un',0);
 wf_avg   = cellfun(@(x,i) [nanmean(x(1:i,:),1);...
     nanmean(x(i+1:end,:),1)],session.waveform,wf_splitIdx,'un',0);
 
-%% creat output table
+%% create output table
 sessionSplit            = session;
 sessionSplit.waveform   = wf_avg;
-sessionSplit.spikeTimes = [];
+sessionSplit.spikeTimes = []; % remove spike times (not needed downstream)
 
 
 

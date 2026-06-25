@@ -14,7 +14,7 @@ function simData = matchUnits(sessionSplits)
 
 
 %% get within-session similarities
-[mdl, ~, normTrain] = trainClassifier(sessionSplits);
+[mdl, normTrain] = trainClassifier(sessionSplits);
 
 %% get across-session similarities
 for iSession = 1:numel(sessionSplits)
@@ -23,33 +23,26 @@ for iSession = 1:numel(sessionSplits)
     tmp              = [sessionSplits{iSession}.elecID{:}]';
     elecID{iSession} = cell2mat(cellfun(@(x) str2num(x(5:7)),tmp,'un',0));
 
-    % unitType
-    tmp                = {sessionSplits{iSession}.unitID{:}}';
-    unitType{iSession} = cellfun(@(x) x(end-5:end-4),tmp,'un',0);
+    % unitID
+    unitID{iSession}  = {sessionSplits{iSession}.unitID{:}}';
 
     % roi
     tmp   = split([sessionSplits{iSession}.unitID],'-');
     tmp   = tmp(:,1);
     tmp(cell2mat(cellfun(@(x) strcmp(x,'AG'),tmp,'un',0))) = {'ANG'};
-    
-    %roi{iSession}         = cell2mat(tmp(:));
+       
     wf{iSession}          = cell2mat(cellfun(@mean,sessionSplits{iSession}.waveform,'un',0));    
     recDay{iSession,1}    = sessionSplits{iSession}.recDay;%repmat(dates{iSession},size(sessions{iSession},1),1);
-    %spikeT{iSession,1}    = sessionSplits{iSession}.spikeTimes;
-    %sessionID{iSession,1} = sessionSplits{iSession}.sessionID;
+   
 
 end
 
-elecID     = cell2mat(elecID(:));
-%roi        = cell2mat(cellfun(@(x) char(x),roi','un',0));
-wf         = cell2mat(wf(:));
-recDay     = cell2mat(cellfun(@(x) char(x),recDay,'un',0));
-%spikeT     = vertcat(spikeT{:});
-%sessionID  = vertcat(sessionID{:});
-%unitType   = vertcat(unitType{:});
+elecID = cell2mat(elecID(:));
+wf     = cell2mat(wf(:));
+recDay = cell2mat(recDay(:));
+unitID = vertcat(unitID{:});
 
 elecs_unique = unique(elecID);
-
 
 
 %% test on single units of each electrode
@@ -63,22 +56,17 @@ for iElec = 1:numel(elecs_unique)
 
     if ~isempty(elecIdx)
 
-        elecDays   = str2num(recDay(elecIdx,:));
-
-        %simData(iElec).roi       = unique(roi(elecIdx,:),'rows');
-        simData(iElec).wf        = wf(elecIdx,:);        
-        simData(iElec).days      = str2num(recDay(elecIdx,:));
-        %simData(iElec).spikeT    = spikeT(elecIdx);
-        %simData(iElec).sessionID = sessionID(elecIdx);
-        %simData(iElec).unitType  = unitType(elecIdx);
+        simData(iElec).wf        = wf(elecIdx,:);       
+        simData(iElec).days      = recDay(elecIdx,:);       
+        simData(iElec).unitID  = unitID(elecIdx);
 
         wf_avg   = simData(iElec).wf;        
 
         %% waveform shape similarity
-        wf_sim = corr(wf_avg');
+        shape_sim = corr(wf_avg');
 
         %% waveform slope similarity
-        wf_diff = corr(diff(wf_avg,1,2)');
+        slope_sim = corr(diff(wf_avg,1,2)');
 
         %% ptpA & ptpW similarity
         wf_cell = num2cell(wf_avg,2);
@@ -90,13 +78,10 @@ for iElec = 1:numel(elecs_unique)
         ptpA = abs(cell2mat(p2) - cell2mat(p1));
         ptpW = abs(cell2mat(maxT) - cell2mat(minT));
 
-        ptpA_diff = 1-abs(ptpA-ptpA')./(ptpA'+ptpA)./2;
-        ptpW_diff = 1-abs(ptpW-ptpW');
+        amp_sim   = 1-abs(ptpA-ptpA')./max(ptpA,ptpA');
+        width_sim = 1-abs(ptpW-ptpW');
 
-        x_test      = [wf_sim(:),wf_diff(:),ptpA_diff(:),ptpW_diff(:)];
-
-%         %% z-normalize to training data
-%         x_test_Z = (x_test-z.mu)./z.sd;
+        x_test      = [shape_sim(:),slope_sim(:),amp_sim(:),width_sim(:)];
     
         %% min-max normalize to training data
         x_test_norm =  (x_test - normTrain.min) ./ (normTrain.max-normTrain.min);
@@ -105,10 +90,9 @@ for iElec = 1:numel(elecs_unique)
         simData(iElec).simFeat = x_test_norm;
 
         %% classification
-        [label, score] = predict(mdl, x_test_norm);
+        [~, score] = predict(mdl, x_test_norm);
 
-        simData(iElec).confMat  = reshape(score(:,1),size(wf_sim,1),size(wf_sim,2));
-        simData(iElec).labelMat = reshape(double(label)==1,size(wf_sim,1),size(wf_sim,2));
+        simData(iElec).confMat  = reshape(score(:,1),size(shape_sim,1),size(shape_sim,2));
 
     end
 end

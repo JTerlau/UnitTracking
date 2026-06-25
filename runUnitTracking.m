@@ -28,16 +28,22 @@
 function [simData,id] = runUnitTracking(sessions)
 
 % split each session at temporal halfpoint and compute waveform average
+disp('computing half-split waveform averages')
+sessionSplits = cell(1,numel(sessions));
 for iSession = 1:numel(sessions)
 
+    fprintf('\rSession %d / %d', iSession, numel(sessions));
     sessionSplits{iSession} = halfSplit(sessions{iSession});
 
 end
- 
+fprintf('\n')
+
 % match units (compute similarity scores across sessions)
+disp('matching: computing cross-session similarities')
 simData = matchUnits(sessionSplits);
 
 % track units based on pairwise similarity scores and assign unique
 % identifiers
+disp('tracking: assigning unique unit identifiers')
 id = trackUnits(simData);
-    
+

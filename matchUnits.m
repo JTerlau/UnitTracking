@@ -14,7 +14,7 @@ function simData = matchUnits(sessionSplits)
 
 
 %% get within-session similarities
-[mdl, ~, normTrain] = trainClassifier(sessionSplits);
+[mdl, normTrain] = trainClassifier(sessionSplits);
 
 %% get across-session similarities
 for iSession = 1:numel(sessionSplits)
@@ -78,7 +78,7 @@ for iElec = 1:numel(elecs_unique)
         ptpA = abs(cell2mat(p2) - cell2mat(p1));
         ptpW = abs(cell2mat(maxT) - cell2mat(minT));
 
-        amp_sim   = 1-abs(ptpA-ptpA')./(ptpA'+ptpA)./2;
+        amp_sim   = 1-abs(ptpA-ptpA')./max(ptpA,ptpA');
         width_sim = 1-abs(ptpW-ptpW');
 
         x_test      = [shape_sim(:),slope_sim(:),amp_sim(:),width_sim(:)];
