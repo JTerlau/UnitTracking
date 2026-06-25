@@ -8,7 +8,7 @@ for iSession = 1:numel(sessionSplits)
     
     sessionSplit = sessionSplits{iSession};
 
-    if strcmp(simType,'within')
+    if strcmp(simType,'different')
 
         %% waveform shape similarity 
         shape_sim = cell2mat(cellfun(@(x) corr(x(1,:)',x(2,:)'),sessionSplit.waveform,'un',0));
@@ -27,7 +27,7 @@ for iSession = 1:numel(sessionSplits)
         ptpW      = (cell2mat(maxT')-cell2mat(minT'));
         ptpW_diff = 1-abs(ptpW(1,:)-ptpW(2,:))';        
 
-    elseif strcmp(simType,'across')
+    elseif strcmp(simType,'same')
 
         rng('default')
 

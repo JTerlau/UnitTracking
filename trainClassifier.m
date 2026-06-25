@@ -4,20 +4,20 @@
 function [mdl, normTrain, CV] = trainClassifier(sessionSplits)
 
 
-Xw = getSimFeatures(sessionSplits,'within');
-Xa = getSimFeatures(sessionSplits,'across');
+Xd = getSimFeatures(sessionSplits,'different');
+Xs = getSimFeatures(sessionSplits,'same');
 
 
 %% min max normalization
-normTrain.min = min([Xw;Xa]);
-normTrain.max = max([Xw;Xa]);
+normTrain.min = min([Xd;Xs]);
+normTrain.max = max([Xd;Xs]);
 
-Xw_norm = (Xw-normTrain.min) ./ (normTrain.max-normTrain.min);
-Xa_norm = (Xa-normTrain.min) ./ (normTrain.max-normTrain.min);
+Xw_norm = (Xd-normTrain.min) ./ (normTrain.max-normTrain.min);
+Xa_norm = (Xs-normTrain.min) ./ (normTrain.max-normTrain.min);
 
 X = [Xw_norm;Xa_norm];
 
-Y = categorical([ones(size(Xw,1),1);2*ones(size(Xa,1),1)]);
+Y = categorical([ones(size(Xd,1),1);2*ones(size(Xs,1),1)]);
 
 % 1. Cross-validation (optional)
 if nargout > 2
