@@ -29,7 +29,7 @@ Units are linked across sessions by greedy merging of the highest-confidence pai
 
 **1.** Load NWB files and extract unit tables (one call per session):
 ```matlab
-session = getNWBunits(nwbFiles);  % nwbFiles: cell array of nwb objects
+session = getNWBunits(nwbFiles);  % nwbFiles: cell array of nwb files for one session
 ```
 
 **2.** Collect session tables into a cell array:
