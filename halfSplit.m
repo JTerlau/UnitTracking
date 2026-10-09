@@ -16,8 +16,8 @@
 
 
 % OUTPUT
-    % sessionSplit is a table of size n x 4
-    % (n = number of recorded units in this session)
+    % sessionSplit is a table of size k x 4
+    % (k = number of recorded units in this session with >= 500 spikes per split)
     % table variables:
         % unitID     (string, unit identifier assigned after spike sorting)
         % elecID     (string)
@@ -25,7 +25,7 @@
         %             2 x t matrix containg the average waveform per session half split)      
         % recDay     (integer, recording date in format yyyymmdd) 
 
-function sessionSplit = halfSplit(session)
+function [sessionSplit,percExcl] = halfSplit(session)
 
 
 %% find temporal midpoint
@@ -36,7 +36,16 @@ end
 
 %% split whole recording day at temporal midpoint
 midpoint = max(cell2mat(cellfun(@max,session.spikeTimes,'un',0)))/2;
-midpoint_cat = num2cell(repelem(midpoint,numel(session.waveform)))'; % match dimensions to unit cell array
+%midpoint_cat = num2cell(repelem(midpoint,numel(session.waveform)))'; % match dimensions to unit cell array
+
+
+%% keep only units with > 500 spikes per split
+s1 = cell2mat(cellfun(@(x) sum(x <= midpoint),session.spikeTimes ,'un',0));
+s2 = cell2mat(cellfun(@(x) sum(x > midpoint),session.spikeTimes ,'un',0));
+rm_idx            = any([s1 < 500,s2 < 500],2);
+session(rm_idx,:) = [];
+
+percExcl = mean(rm_idx);
 
 % waveforms
 wf_splitIdx   = cellfun(@(x) dsearchn(x,midpoint),session.spikeTimes,'un',0);
@@ -48,8 +57,6 @@ wf_avg   = cellfun(@(x,i) [nanmean(x(1:i,:),1);...
 sessionSplit            = session;
 sessionSplit.waveform   = wf_avg;
 sessionSplit.spikeTimes = []; % remove spike times (not needed downstream)
-
-
 
 
 

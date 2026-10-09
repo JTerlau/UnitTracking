@@ -5,7 +5,7 @@
 % INPUT
     % nwbFiles is a cell array, where each cell contains an nwb file
 % OUTPUT
-% session is a table of size n x 4 
+% session is a table of size n x 5 
     % (n = number of recorded units in this session)
     % table variables:
         % unitID     (string, unit identifier assigned after spike sorting)
@@ -23,6 +23,7 @@ for iFile = 1:numel(nwbFiles)
     nwb = nwbFiles{iFile};
 
     % get units table
+    units = [];
     props = properties(nwb);
     if ismember('units',props) && ~isempty(nwb.units)       
         units = nwb.units;        
@@ -123,8 +124,9 @@ end
 session = table(unitID,elecID_cat,recDay_cat,wf_cat,spikeTimes_cat,...
     'VariableNames',{'unitID','elecID','recDay','waveform','spikeTimes'});
 
-%% keep only units with > 500 spikes
-a                 = cell2mat(cellfun(@numel,session.spikeTimes,'un',0));
-rm_idx            = a < 500;
-session(rm_idx,:) = [];
+% %% keep only units with > 500 spikes 
+% s1 = cell2mat(cellfun(@numel,session.spikeTimes,'un',0));
+% a                 = cell2mat(cellfun(@numel,session.spikeTimes,'un',0));
+% rm_idx            = a < 500;
+% session(rm_idx,:) = [];
 

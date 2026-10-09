@@ -21,19 +21,18 @@
         % unitIDs
         % similarity features (vectorized; shape, slope, amp, width)
         % confidence matrix (posterior probabilities == P(match))
-        % label matrix (P(match) > threshold (default 0.85))
+        % label matrix (P(match) > threshold (default 0.5))
     % id: m x 1 cell array containing the unique unit identifiers per
         % electrode to track units across sessions
 
 function [simData,id] = runUnitTracking(sessions)
 
 % split each session at temporal halfpoint and compute waveform average
-disp('computing half-split waveform averages')
 sessionSplits = cell(1,numel(sessions));
 for iSession = 1:numel(sessions)
 
-    fprintf('\rSession %d / %d', iSession, numel(sessions));
-    sessionSplits{iSession} = halfSplit(sessions{iSession});
+    fprintf('\rComputing half-split waveform averages, Session %d / %d', iSession, numel(sessions));
+    [sessionSplits{iSession},percExcl(iSession,1)] = halfSplit(sessions{iSession});
 
 end
 fprintf('\n')

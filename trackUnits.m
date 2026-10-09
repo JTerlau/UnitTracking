@@ -7,13 +7,13 @@
 %   id    : unique unit identifiers
 
 % optional input (name,value): 
-%   thresh: P(Match) decision threshold (default = 0.85)
+%   thresh: P(Match) decision threshold (default = 0.5)
 %   type: intermittent (default) | continuous
 
 function id = trackUnits(simData,varargin)
 
 % set default 
-thresh = 0.85;
+thresh = 0.5;
 type = 'intermittent';
 
 % check thresh input

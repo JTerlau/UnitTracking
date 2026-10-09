@@ -4,18 +4,18 @@
 function [mdl, normTrain, CV] = trainClassifier(sessionSplits)
 
 
-Xd = getSimFeatures(sessionSplits,'different');
 Xs = getSimFeatures(sessionSplits,'same');
+Xd = getSimFeatures(sessionSplits,'different');
 
 
 %% min max normalization
 normTrain.min = min([Xd;Xs]);
 normTrain.max = max([Xd;Xs]);
 
-Xw_norm = (Xd-normTrain.min) ./ (normTrain.max-normTrain.min);
-Xa_norm = (Xs-normTrain.min) ./ (normTrain.max-normTrain.min);
+Xs_norm = (Xs-normTrain.min) ./ (normTrain.max-normTrain.min);
+Xd_norm = (Xd-normTrain.min) ./ (normTrain.max-normTrain.min);
 
-X = [Xw_norm;Xa_norm];
+X = [Xs_norm;Xd_norm];
 
 Y = categorical([ones(size(Xd,1),1);2*ones(size(Xs,1),1)]);
 
@@ -43,7 +43,7 @@ if nargout > 2
         % testing
         [lbl, p] = predict(mdlOrig, X(testIdx,:));
 
-        CV.pred(testIdx) = lbl;
+        CV.pred(testIdx) = double(lbl);
         CV.prob(testIdx) = p(:,1); % P(Match)
     end
 
@@ -54,6 +54,7 @@ end
 % 2. Final model
 mdlOrig = fitcsvm(X,Y);
 mdl = fitPosterior(mdlOrig, X,Y);
+
 
 
 
