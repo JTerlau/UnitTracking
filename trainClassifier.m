@@ -17,7 +17,8 @@ Xd_norm = (Xd-normTrain.min) ./ (normTrain.max-normTrain.min);
 
 X = [Xs_norm;Xd_norm];
 
-Y = categorical([ones(size(Xd,1),1);2*ones(size(Xs,1),1)]);
+Y = categorical([ones(size(Xs,1),1);2*ones(size(Xd,1),1)]);
+assert(median(X(Y=='1',1)) > median(X(Y=='2',1)), 'class 1 is not the same-unit class')
 
 % 1. Cross-validation (optional)
 if nargout > 2
@@ -34,8 +35,7 @@ if nargout > 2
         testIdx  = test(cv,iFold);
 
         % Train SVM
-        mdlOrig = fitcsvm(X(trainIdx,:), Y(trainIdx), ...
-            'Standardize',true);
+        mdlOrig = fitcsvm(X(trainIdx,:), Y(trainIdx));
 
         % training
         mdlOrig = fitPosterior(mdlOrig, X(trainIdx,:), Y(trainIdx));
