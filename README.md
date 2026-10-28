@@ -79,7 +79,7 @@ sessions = {session1, session2, session3, ...};
 
 | Argument | Default | Description |
 |---|---|---|
-| `'thresh'` | `0.85` | P(match) decision threshold. Increase to require stronger evidence before linking units. |
+| `'thresh'` | `0.5` | P(match) decision threshold. Increase to require stronger evidence before linking units. |
 | `'type'` | `'intermittent'` | `'intermittent'`: units may be re-identified after gaps. `'continuous'`: units must appear in consecutive sessions. |
 
 ```matlab
