@@ -1,6 +1,6 @@
 ## Waveform-Based Unit Tracking Toolbox
 
-This toolbox tracks individual units (SU/MU) across recording sessions by comparing waveform similarity within and across sessions. It adapts the [UnitMatch](https://doi.org/10.1038/s41592-024-02569-5) approach (van Beest et al., 2025, Nat Methods) to multi-session recordings on multi-electrode arrays such as the Utah array.
+This toolbox tracks individual units (SU/MU) across recording sessions by comparing waveform similarity within and across sessions. It adapts the [UnitMatch](https://www.nature.com/articles/s41592-024-02440-1) approach (van Beest et al., 2025, Nat Methods) to multi-session recordings on multi-electrode arrays such as the Utah array.
 
 Spike sorting must be performed prior to tracking to generate unit identifiers within each session.
 
